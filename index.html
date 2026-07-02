@@ -53,7 +53,7 @@
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             outline: none;
         }
         input[type="text"]:focus {
@@ -69,12 +69,12 @@
             font-size: 13px;
             color: #333;
             word-break: break-all;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .button-group {
             display: flex;
             gap: 12px;
-            margin-bottom: 8px;
+            margin-bottom: 24px;
         }
         button {
             flex: 1;
@@ -89,16 +89,16 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            transition: all 0.2s ease;
         }
         button:hover {
             background-color: #f8f9fa;
             border-color: #999;
         }
-        .error-msg {
-            font-size: 13px;
-            color: #cb2431;
-            margin-top: 4px;
-            margin-bottom: 20px;
+        .btn-success {
+            background-color: #28a745 !important;
+            color: white !important;
+            border-color: #28a745 !important;
         }
         hr {
             border: 0;
@@ -117,22 +117,20 @@
     <input type="text" id="posterIdInput" value="GLOBAL_CT0000553172" placeholder="Enter ID here..." oninput="updateURLs()">
 
     <label class="section-label">Poster Image</label>
-    <div class="output-box" id="posterUrlBox">https://poster.starhubgo.com/poster/...</div>
+    <div class="output-box" id="posterUrlBox"></div>
     <div class="button-group">
-        <button onclick="copyText('posterUrlBox')">📋 Copy URL</button>
+        <button id="copyBtn_poster" onclick="copyText('posterUrlBox', 'copyBtn_poster')">📋 Copy URL</button>
         <button onclick="openLink('posterUrlBox')">🔗 Open image</button>
     </div>
-    <div class="error-msg">Could not load preview — check the ID or image access.</div>
 
     <hr>
 
     <label class="section-label">Still Image</label>
-    <div class="output-box" id="stillUrlBox">https://imageservice.starhub.otvse.com/...</div>
+    <div class="output-box" id="stillUrlBox"></div>
     <div class="button-group">
-        <button onclick="copyText('stillUrlBox')">📋 Copy URL</button>
+        <button id="copyBtn_still" onclick="copyText('stillUrlBox', 'copyBtn_still')">📋 Copy URL</button>
         <button onclick="openLink('stillUrlBox')">🔗 Open image</button>
     </div>
-    <div class="error-msg">Could not load preview — check the ID or image access.</div>
 </div>
 
 <script>
@@ -145,13 +143,12 @@ function updateURLs() {
         return;
     }
 
-    // Ensures the construction handles cases where 'GLOBAL_' might already be present or missing
+    // Standardize input formatting
     let cleanId = inputId;
     if (!cleanId.startsWith("GLOBAL_")) {
         cleanId = "GLOBAL_" + cleanId;
     }
     
-    // Format required: GLOBAL_GLOBAL_CT0000553172
     let doubleGlobalId = "GLOBAL_" + cleanId; 
 
     // 1. Generate Poster URL
@@ -163,11 +160,22 @@ function updateURLs() {
     document.getElementById('stillUrlBox').innerText = stillUrl;
 }
 
-function copyText(elementId) {
+function copyText(elementId, buttonId) {
     let text = document.getElementById(elementId).innerText;
+    let btn = document.getElementById(buttonId);
+    
     if(text) {
-        navigator.clipboard.writeText(text);
-        alert("URL copied to clipboard!");
+        navigator.clipboard.writeText(text).then(() => {
+            // Visual confirmation feedback on the button
+            let originalText = btn.innerHTML;
+            btn.innerHTML = "✅ Copied!";
+            btn.classList.add("btn-success");
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove("btn-success");
+            }, 1500);
+        });
     }
 }
 
@@ -178,7 +186,7 @@ function openLink(elementId) {
     }
 }
 
-// Run once on load to populate the default value
+// Initial build
 updateURLs();
 </script>
 
