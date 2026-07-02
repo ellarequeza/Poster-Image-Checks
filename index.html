@@ -53,7 +53,7 @@
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             outline: none;
         }
         input[type="text"]:focus {
@@ -74,7 +74,7 @@
         .button-group {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
         button {
             flex: 1;
@@ -103,7 +103,7 @@
         hr {
             border: 0;
             border-top: 1px solid #e1e4e8;
-            margin: 20px 0;
+            margin: 24px 0;
         }
     </style>
 </head>
@@ -111,21 +111,26 @@
 
 <div class="card">
     <h2>Poster URL Builder</h2>
-    <div class="subtitle">Paste the ID to generate the full poster image URLs.</div>
+    <div class="subtitle">Paste the IDs to generate the full image URLs.</div>
 
     <label class="section-label">Poster ID (e.g. CT0000557980)</label>
-    <input type="text" id="posterIdInput" value="GLOBAL_CT0000553172" placeholder="Enter ID here..." oninput="updateURLs()">
+    <input type="text" id="posterIdInput" value="GLOBAL_CT0000553172" placeholder="Enter Poster ID..." oninput="updateURLs()">
 
-    <label class="section-label">Poster Image</label>
+    <label class="section-label">Content ID (e.g. 10023456)</label>
+    <input type="text" id="contentIdInput" value="GLOBAL_CT0000553172" placeholder="Enter Content ID..." oninput="updateURLs()">
+
+    <hr>
+
+    <label class="section-label">Poster Image (Uses Poster ID)</label>
     <div class="output-box" id="posterUrlBox"></div>
     <div class="button-group">
         <button id="copyBtn_poster" onclick="copyText('posterUrlBox', 'copyBtn_poster')">📋 Copy URL</button>
         <button onclick="openLink('posterUrlBox')">🔗 Open image</button>
     </div>
 
-    <hr>
+    <br>
 
-    <label class="section-label">Still Image</label>
+    <label class="section-label">Still Image (Uses Content ID)</label>
     <div class="output-box" id="stillUrlBox"></div>
     <div class="button-group">
         <button id="copyBtn_still" onclick="copyText('stillUrlBox', 'copyBtn_still')">📋 Copy URL</button>
@@ -134,61 +139,32 @@
 </div>
 
 <script>
-function updateURLs() {
-    let inputId = document.getElementById('posterIdInput').value.trim();
+function formatId(id) {
+    let cleanId = id.trim();
+    if (!cleanId) return "";
     
-    if(!inputId) {
-        document.getElementById('posterUrlBox').innerText = "";
-        document.getElementById('stillUrlBox').innerText = "";
-        return;
-    }
-
-    // Standardize input formatting
-    let cleanId = inputId;
+    // Ensure it has the "GLOBAL_" prefix
     if (!cleanId.startsWith("GLOBAL_")) {
         cleanId = "GLOBAL_" + cleanId;
     }
+    // Return the double-prefixed string needed for StarHub paths
+    return "GLOBAL_" + cleanId; 
+}
+
+function updateURLs() {
+    let posterId = document.getElementById('posterIdInput').value;
+    let contentId = document.getElementById('contentIdInput').value;
     
-    let doubleGlobalId = "GLOBAL_" + cleanId; 
-
-    // 1. Generate Poster URL
-    let posterUrl = `https://poster.starhubgo.com/poster/${doubleGlobalId}/${doubleGlobalId}_2.jpg`;
-    document.getElementById('posterUrlBox').innerText = posterUrl;
-
-    // 2. Generate Still Image URL
-    let stillUrl = `https://imageservice.starhub.otvse.com//images/v1/image/Movie/${doubleGlobalId}/Still?width=352&aspect=16x9`;
-    document.getElementById('stillUrlBox').innerText = stillUrl;
-}
-
-function copyText(elementId, buttonId) {
-    let text = document.getElementById(elementId).innerText;
-    let btn = document.getElementById(buttonId);
-    
-    if(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            // Visual confirmation feedback on the button
-            let originalText = btn.innerHTML;
-            btn.innerHTML = "✅ Copied!";
-            btn.classList.add("btn-success");
-            
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove("btn-success");
-            }, 1500);
-        });
+    // 1. Process Poster URL
+    if (posterId.trim()) {
+        let formattedPosterId = formatId(posterId);
+        let posterUrl = `https://poster.starhubgo.com/poster/${formattedPosterId}/${formattedPosterId}_2.jpg`;
+        document.getElementById('posterUrlBox').innerText = posterUrl;
+    } else {
+        document.getElementById('posterUrlBox').innerText = "Please enter a Poster ID";
     }
-}
 
-function openLink(elementId) {
-    let url = document.getElementById(elementId).innerText;
-    if(url) {
-        window.open(url, '_blank');
-    }
-}
-
-// Initial build
-updateURLs();
-</script>
-
-</body>
-</html>
+    // 2. Process Still Image URL (Now maps to Content ID field)
+    if (contentId.trim()) {
+        let formattedContentId = formatId(contentId);
+        let stillUrl = `https://imageservice.
