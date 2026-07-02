@@ -3,168 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poster URL Builder</title>
+    <title>My Simple Input Tool</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
         body {
-            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            padding: 20px;
         }
-        .card {
-            background: #ffffff;
-            border: 1px solid #e1e4e8;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 540px;
+        .container {
+            background: white;
             padding: 30px;
-        }
-        h2 {
-            margin-top: 0;
-            margin-bottom: 6px;
-            font-size: 22px;
-            color: #111;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-        .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #888;
-            margin-bottom: 6px;
-            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
         }
         input[type="text"] {
             width: 100%;
             padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            outline: none;
         }
-        input[type="text"]:focus {
-            border-color: #0066cc;
-        }
-        .output-box {
-            width: 100%;
-            padding: 12px;
-            background-color: #f1f3f5;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            font-family: "Courier New", Courier, monospace;
-            font-size: 13px;
-            color: #333;
-            word-break: break-all;
-            margin-bottom: 12px;
-        }
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        button {
-            flex: 1;
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-        button:hover {
-            background-color: #f8f9fa;
-            border-color: #999;
-        }
-        .btn-success {
-            background-color: #28a745 !important;
-            color: white !important;
-            border-color: #28a745 !important;
-        }
-        hr {
-            border: 0;
-            border-top: 1px solid #e1e4e8;
-            margin: 24px 0;
+        p {
+            color: #666;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Poster URL Builder</h2>
-    <div class="subtitle">Paste the IDs to generate the full image URLs.</div>
-
-    <label class="section-label">Poster ID (e.g. CT0000557980)</label>
-    <input type="text" id="posterIdInput" value="GLOBAL_CT0000553172" placeholder="Enter Poster ID..." oninput="updateURLs()">
-
-    <label class="section-label">Content ID (e.g. 10023456)</label>
-    <input type="text" id="contentIdInput" value="GLOBAL_CT0000553172" placeholder="Enter Content ID..." oninput="updateURLs()">
-
-    <hr>
-
-    <label class="section-label">Poster Image (Uses Poster ID)</label>
-    <div class="output-box" id="posterUrlBox"></div>
-    <div class="button-group">
-        <button id="copyBtn_poster" onclick="copyText('posterUrlBox', 'copyBtn_poster')">📋 Copy URL</button>
-        <button onclick="openLink('posterUrlBox')">🔗 Open image</button>
-    </div>
-
-    <br>
-
-    <label class="section-label">Still Image (Uses Content ID)</label>
-    <div class="output-box" id="stillUrlBox"></div>
-    <div class="button-group">
-        <button id="copyBtn_still" onclick="copyText('stillUrlBox', 'copyBtn_still')">📋 Copy URL</button>
-        <button onclick="openLink('stillUrlBox')">🔗 Open image</button>
-    </div>
+<div class="container">
+    <h2>Data Input Tool</h2>
+    <p>Type something below:</p>
+    
+    <input type="text" id="userInput" placeholder="Enter your data here..." oninput="showData()">
+    
+    <div id="displayArea" style="margin-top: 15px; font-size: 18px; color: #333; font-weight: bold;"></div>
 </div>
 
 <script>
-function formatId(id) {
-    let cleanId = id.trim();
-    if (!cleanId) return "";
-    
-    // Ensure it has the "GLOBAL_" prefix
-    if (!cleanId.startsWith("GLOBAL_")) {
-        cleanId = "GLOBAL_" + cleanId;
-    }
-    // Return the double-prefixed string needed for StarHub paths
-    return "GLOBAL_" + cleanId; 
+// This function watches the input field and changes the text live
+function showData() {
+    let inputData = document.getElementById('userInput').value;
+    document.getElementById('displayArea').innerText = inputData;
 }
+</script>
 
-function updateURLs() {
-    let posterId = document.getElementById('posterIdInput').value;
-    let contentId = document.getElementById('contentIdInput').value;
-    
-    // 1. Process Poster URL
-    if (posterId.trim()) {
-        let formattedPosterId = formatId(posterId);
-        let posterUrl = `https://poster.starhubgo.com/poster/${formattedPosterId}/${formattedPosterId}_2.jpg`;
-        document.getElementById('posterUrlBox').innerText = posterUrl;
-    } else {
-        document.getElementById('posterUrlBox').innerText = "Please enter a Poster ID";
-    }
-
-    // 2. Process Still Image URL (Now maps to Content ID field)
-    if (contentId.trim()) {
-        let formattedContentId = formatId(contentId);
-        let stillUrl = `https://imageservice.
+</body>
+</html>
