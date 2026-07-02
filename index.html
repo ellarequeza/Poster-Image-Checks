@@ -2,26 +2,185 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Poster URL Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poster URL Builder</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
-        input { padding: 10px; width: 300px; margin-bottom: 10px; }
-        button { padding: 10px 20px; background-color: #24292e; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #444; }
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 540px;
+            padding: 30px;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-size: 22px;
+            color: #111;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin-bottom: 6px;
+            display: block;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #0066cc;
+        }
+        .output-box {
+            width: 100%;
+            padding: 12px;
+            background-color: #f1f3f5;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 13px;
+            color: #333;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        button:hover {
+            background-color: #f8f9fa;
+            border-color: #999;
+        }
+        .error-msg {
+            font-size: 13px;
+            color: #cb2431;
+            margin-top: 4px;
+            margin-bottom: 20px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #e1e4e8;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
-    <h1>Poster URL Tool</h1>
-    <p>Enter your details below:</p>
-    <input type="text" id="urlInput" placeholder="Paste link here..."><br>
-    <button onclick="processURL()">Process</button>
-    <p id="result"></p>
 
-    <script>
-        function processURL() {
-            let input = document.getElementById('urlInput').value;
-            document.getElementById('result').innerText = "You entered: " + input;
-        }
-    </script>
+<div class="card">
+    <h2>Poster URL Builder</h2>
+    <div class="subtitle">Paste the ID to generate the full poster image URLs.</div>
+
+    <label class="section-label">Poster ID (e.g. CT0000557980)</label>
+    <input type="text" id="posterIdInput" value="GLOBAL_CT0000553172" placeholder="Enter ID here..." oninput="updateURLs()">
+
+    <label class="section-label">Poster Image</label>
+    <div class="output-box" id="posterUrlBox">https://poster.starhubgo.com/poster/...</div>
+    <div class="button-group">
+        <button onclick="copyText('posterUrlBox')">📋 Copy URL</button>
+        <button onclick="openLink('posterUrlBox')">🔗 Open image</button>
+    </div>
+    <div class="error-msg">Could not load preview — check the ID or image access.</div>
+
+    <hr>
+
+    <label class="section-label">Still Image</label>
+    <div class="output-box" id="stillUrlBox">https://imageservice.starhub.otvse.com/...</div>
+    <div class="button-group">
+        <button onclick="copyText('stillUrlBox')">📋 Copy URL</button>
+        <button onclick="openLink('stillUrlBox')">🔗 Open image</button>
+    </div>
+    <div class="error-msg">Could not load preview — check the ID or image access.</div>
+</div>
+
+<script>
+function updateURLs() {
+    let inputId = document.getElementById('posterIdInput').value.trim();
+    
+    if(!inputId) {
+        document.getElementById('posterUrlBox').innerText = "";
+        document.getElementById('stillUrlBox').innerText = "";
+        return;
+    }
+
+    // Ensures the construction handles cases where 'GLOBAL_' might already be present or missing
+    let cleanId = inputId;
+    if (!cleanId.startsWith("GLOBAL_")) {
+        cleanId = "GLOBAL_" + cleanId;
+    }
+    
+    // Format required: GLOBAL_GLOBAL_CT0000553172
+    let doubleGlobalId = "GLOBAL_" + cleanId; 
+
+    // 1. Generate Poster URL
+    let posterUrl = `https://poster.starhubgo.com/poster/${doubleGlobalId}/${doubleGlobalId}_2.jpg`;
+    document.getElementById('posterUrlBox').innerText = posterUrl;
+
+    // 2. Generate Still Image URL
+    let stillUrl = `https://imageservice.starhub.otvse.com//images/v1/image/Movie/${doubleGlobalId}/Still?width=352&aspect=16x9`;
+    document.getElementById('stillUrlBox').innerText = stillUrl;
+}
+
+function copyText(elementId) {
+    let text = document.getElementById(elementId).innerText;
+    if(text) {
+        navigator.clipboard.writeText(text);
+        alert("URL copied to clipboard!");
+    }
+}
+
+function openLink(elementId) {
+    let url = document.getElementById(elementId).innerText;
+    if(url) {
+        window.open(url, '_blank');
+    }
+}
+
+// Run once on load to populate the default value
+updateURLs();
+</script>
+
 </body>
 </html>
